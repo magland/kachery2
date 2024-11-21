@@ -250,6 +250,9 @@ export type SetZoneInfoRequest = {
   zoneName: string;
   users?: Kachery2ZoneUser[];
   publicDownload?: boolean;
+  bucketUri?: string;
+  credentials?: string;
+  directory?: string;
 };
 
 export const isSetZoneInfoRequest = (x: any): x is SetZoneInfoRequest => {
@@ -258,6 +261,9 @@ export const isSetZoneInfoRequest = (x: any): x is SetZoneInfoRequest => {
     zoneName: isString,
     users: optional(isArrayOf(isKachery2ZoneUser)),
     publicDownload: optional(isBoolean),
+    bucketUri: optional(isString),
+    credentials: optional(isString),
+    directory: optional(isString),
   });
 };
 

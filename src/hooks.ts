@@ -124,13 +124,16 @@ export const useZone = (zoneName: string) => {
   }, [zoneName, githubAccessToken]);
 
   const setZoneInfo = useMemo(
-    () => async (o: { users: Kachery2ZoneUser[] }) => {
-      const { users } = o;
+    () => async (o: { users?: Kachery2ZoneUser[], bucketUri?: string, directory?: string, credentials?: string }) => {
+      const { users, bucketUri, directory, credentials } = o;
       if (!githubAccessToken) return;
       const req: SetZoneInfoRequest = {
         type: "setZoneInfoRequest",
         zoneName,
         users,
+        bucketUri,
+        directory,
+        credentials
       };
       const resp = await apiPostRequest(
         "setZoneInfo",

@@ -63,7 +63,7 @@ export const addZoneHandler = allowCors(
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const zone = await fetchZone(zoneName);
+      const zone = await fetchZone(zoneName, {includeCredentials: false});
       if (zone) {
         res
           .status(500)
@@ -101,12 +101,11 @@ export const getZoneHandler = allowCors(
       return;
     }
     try {
-      const zone = await fetchZone(rr.zoneName);
+      const zone = await fetchZone(rr.zoneName, {includeCredentials: false});
       if (!zone) {
         res.status(404).json({ error: `Zone not found: ${rr.zoneName}` });
         return;
       }
-      zone.credentials = undefined;  // hide the credentials
       const resp: GetZoneResponse = {
         type: "getZoneResponse",
         zone,
@@ -134,7 +133,7 @@ export const getZonesHandler = allowCors(
       }
       const { userId } = rr;
       const zones = userId
-        ? await fetchZonesForUser(userId)
+        ? await fetchZonesForUser(userId, {includeCredentials: false})
         : await fetchAllZones();
       const resp: GetZonesResponse = {
         type: "getZonesResponse",
@@ -157,7 +156,7 @@ export const deleteZoneHandler = allowCors(
       return;
     }
     try {
-      const zone = await fetchZone(rr.zoneName);
+      const zone = await fetchZone(rr.zoneName, {includeCredentials: false});
       if (!zone) {
         res.status(404).json({ error: `Zone not found: ${rr.zoneName}` });
         return;
@@ -193,7 +192,7 @@ export const setZoneInfoHandler = allowCors(
       return;
     }
     try {
-      const zone = await fetchZone(rr.zoneName);
+      const zone = await fetchZone(rr.zoneName, {includeCredentials: true});
       if (!zone) {
         res.status(404).json({ error: `Zone not found: ${rr.zoneName}` });
         return;
@@ -217,6 +216,9 @@ export const setZoneInfoHandler = allowCors(
       const update: { [key: string]: any } = {};
       if (rr.users !== undefined) update["users"] = rr.users;
       if (rr.publicDownload !== undefined) update["publicDownload"] = rr.publicDownload;
+      if (rr.bucketUri !== undefined) update["bucketUri"] = rr.bucketUri;
+      if (rr.credentials !== undefined) update["credentials"] = rr.credentials;
+      if (rr.directory !== undefined) update["directory"] = rr.directory
       await updateZone(rr.zoneName, update);
       const resp: SetZoneInfoResponse = {
         type: "setZoneInfoResponse",
@@ -371,7 +373,7 @@ export const initiateFileUploadHandler = allowCors(
         res.status(401).json({ error: "Unauthorized - no user for token" });
         return;
       }
-      const zone = await fetchZone(zoneName);
+      const zone = await fetchZone(zoneName, { includeCredentials: true});
       if (!zone) {
         res.status(400).json({ error: `Zone not found: ${zoneName}` });
         return;
@@ -428,7 +430,7 @@ export const finalizeFileUploadHandler = allowCors(
         res.status(401).json({ error: "Unauthorized - no user for token" });
         return;
       }
-      const zone = await fetchZone(zoneName);
+      const zone = await fetchZone(zoneName, { includeCredentials: true});
       if (!zone) {
         res.status(400).json({ error: `Zone not found: ${zoneName}` });
         return;
@@ -468,7 +470,7 @@ export const findFileHandler = allowCors(
     }
     try {
       const { hashAlg, hash, zoneName } = rr;
-      const zone = await fetchZone(zoneName);
+      const zone = await fetchZone(zoneName, { includeCredentials: true});
       if (!zone) {
         res.status(400).json({ error: `Zone not found: ${zoneName}` });
         return;
@@ -555,6 +557,7 @@ const authenticateUserUsingGitHubToken = async (
 
 const fetchZone = async (
   zoneName: string,
+  o: {includeCredentials: boolean}
 ): Promise<Kachery2Zone | null> => {
   const client = await getMongoClient();
   const collection = client.db(dbName).collection(collectionNames.zones);
@@ -564,11 +567,15 @@ const fetchZone = async (
   if (!isKachery2Zone(zone)) {
     throw Error("Invalid zone in database");
   }
+  if (!o.includeCredentials) {
+    zone.credentials = zone.credentials ? "********" : undefined;
+  }
   return zone;
 };
 
 const fetchZonesForUser = async (
   userId: string,
+  o: {includeCredentials: boolean}
 ): Promise<Kachery2Zone[]> => {
   const client = await getMongoClient();
   const collection = client.db(dbName).collection(collectionNames.zones);
@@ -577,6 +584,9 @@ const fetchZonesForUser = async (
     removeMongoId(zone);
     if (!isKachery2Zone(zone)) {
       throw Error("Invalid zone in database");
+    }
+    if (!o.includeCredentials) {
+      zone.credentials = zone.credentials ? "********" : undefined;
     }
   }
   return zones.map((zone: any) => zone as Kachery2Zone);

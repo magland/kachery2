@@ -125,6 +125,54 @@ const ZonePage: FunctionComponent<ZonePageProps> = ({
                 </Hyperlink>
               </td>
             </tr>
+            <tr>
+              <td>Bucket URI</td>
+              <td>{zone.bucketUri}</td>
+              <td>
+                <Hyperlink
+                  onClick={() => {
+                    const newUri = prompt("Enter new bucket URI", zone.bucketUri);
+                    if (!newUri) return;
+                    setZoneInfo({ bucketUri: newUri });
+                  }}
+                >
+                  Edit bucket URI
+                </Hyperlink>
+              </td>
+            </tr>
+            <tr>
+              <td>Directory</td>
+              <td>{zone.directory}</td>
+              <td>
+                <Hyperlink
+                  onClick={() => {
+                    const newDir = prompt("Enter new directory", zone.directory);
+                    if (!newDir) return;
+                    setZoneInfo({ directory: newDir });
+                  }}
+                >
+                  Edit directory
+                </Hyperlink>
+              </td>
+            </tr>
+            <tr>
+              <td>Bucket credentials</td>
+              <td>{zone.credentials}</td>
+              <td>
+                <Hyperlink
+                  onClick={() => {
+                    const newCredentials = prompt(
+                      "Enter new credentials",
+                      zone.credentials,
+                    );
+                    if (!newCredentials) return;
+                    setZoneInfo({ credentials: newCredentials });
+                  }}
+                >
+                  Edit credentials
+                </Hyperlink>
+              </td>
+            </tr>
           </tbody>
         </table>
         <div>&nbsp;</div>

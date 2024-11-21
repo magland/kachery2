@@ -14,7 +14,7 @@ const HomePage: FunctionComponent<Props> = () => {
   const { recentZones } = useRecentZones();
   return (
     <div style={{ padding: 30 }}>
-      <h3>Kachery2: Kachery2 Prototype 3</h3>
+      <h3>Kachery2</h3>
       <p>
         <a
           href="https://github.com/magland/kachery2"
