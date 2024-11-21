@@ -1,3 +1,6 @@
+import requests
+
+
 def _initiate_file_upload_request(*, size: int, hash_alg: str, hash: str, zone: str) -> dict:
     payload = {
         'type': 'initiateFileUploadRequest',
@@ -6,7 +9,12 @@ def _initiate_file_upload_request(*, size: int, hash_alg: str, hash: str, zone: 
         'hash': hash,
         'zoneName': zone
     }
-    FINISH
+    url = 'https://kachery2.vercel.app/api/initiateFileUpload'
+    resp = requests.post(url, json=payload)
+    if resp.status_code != 200:
+        raise Exception(f'Error in {payload["type"]} ({resp.status_code}) {resp.reason}: {resp.text}')
+    response = resp.json()
+    return response
 
 
 def _finalize_file_upload_request(*, object_key: str, hash_alg: str, hash0: str, kachery_zone: str, size: int) -> dict:
@@ -18,7 +26,12 @@ def _finalize_file_upload_request(*, object_key: str, hash_alg: str, hash0: str,
         'zoneName': kachery_zone,
         'size': size
     }
-    FINISH
+    url = 'https://kachery2.vercel.app/api/finalizeFileUpload'
+    resp = requests.post(url, json=payload)
+    if resp.status_code != 200:
+        raise Exception(f'Error in {payload["type"]} ({resp.status_code}) {resp.reason}: {resp.text}')
+    response = resp.json()
+    return response
 
 
 def find_file_request(*, hash_alg: str, hash: str, zone: str) -> dict:
@@ -28,4 +41,9 @@ def find_file_request(*, hash_alg: str, hash: str, zone: str) -> dict:
         'hash': hash,
         'zoneName': zone
     }
-    FINISH
+    url = 'https://kachery2.vercel.app/api/findFile'
+    resp = requests.post(url, json=payload)
+    if resp.status_code != 200:
+        raise Exception(f'Error in {payload["type"]} ({resp.status_code}) {resp.reason}: {resp.text}')
+    response = resp.json()
+    return response

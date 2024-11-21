@@ -20,10 +20,7 @@ type ZonePageProps = {
   height: number;
 };
 
-const ZonePage: FunctionComponent<ZonePageProps> = ({
-  width,
-  height,
-}) => {
+const ZonePage: FunctionComponent<ZonePageProps> = ({ width, height }) => {
   const { route, setRoute } = useRoute();
   const [errorMessage] = useState<string | null>(null);
   if (route.page !== "zone") {
@@ -131,7 +128,10 @@ const ZonePage: FunctionComponent<ZonePageProps> = ({
               <td>
                 <Hyperlink
                   onClick={() => {
-                    const newUri = prompt("Enter new bucket URI", zone.bucketUri);
+                    const newUri = prompt(
+                      "Enter new bucket URI",
+                      zone.bucketUri,
+                    );
                     if (!newUri) return;
                     setZoneInfo({ bucketUri: newUri });
                   }}
@@ -146,7 +146,10 @@ const ZonePage: FunctionComponent<ZonePageProps> = ({
               <td>
                 <Hyperlink
                   onClick={() => {
-                    const newDir = prompt("Enter new directory", zone.directory);
+                    const newDir = prompt(
+                      "Enter new directory",
+                      zone.directory,
+                    );
                     if (!newDir) return;
                     setZoneInfo({ directory: newDir });
                   }}
@@ -239,9 +242,7 @@ const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
     setLocalEditUsers(zone.users);
   }, [zone]);
   const somethingChanged = useMemo(() => {
-    return (
-      deterministicHash(localEditUsers) !== deterministicHash(zone.users)
-    );
+    return deterministicHash(localEditUsers) !== deterministicHash(zone.users);
   }, [localEditUsers, zone]);
   return (
     <div>
@@ -316,7 +317,10 @@ const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
                 checked={user.downloadFiles}
                 onChange={(e) => {
                   const newUsers = [...localEditUsers];
-                  newUsers[index] = { ...user, downloadFiles: e.target.checked };
+                  newUsers[index] = {
+                    ...user,
+                    downloadFiles: e.target.checked,
+                  };
                   setLocalEditUsers(newUsers);
                 }}
               />

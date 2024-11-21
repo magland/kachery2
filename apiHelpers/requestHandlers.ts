@@ -31,7 +31,7 @@ import {
   isFinalizeFileUploadRequest,
   FinalizeFileUploadResponse,
   isFindFileRequest,
-  FindFileResponse
+  FindFileResponse,
 } from "./types"; // remove .js for local dev
 import { initiateUpload, finalizeUpload, findFile } from "./core"; // remove .js for local dev
 
@@ -39,7 +39,7 @@ const dbName = "kachery2";
 
 const collectionNames = {
   users: "users",
-  zones: "zones"
+  zones: "zones",
 };
 
 // addZone handler
@@ -63,18 +63,16 @@ export const addZoneHandler = allowCors(
         res.status(401).json({ error: "Unauthorized" });
         return;
       }
-      const zone = await fetchZone(zoneName, {includeCredentials: false});
+      const zone = await fetchZone(zoneName, { includeCredentials: false });
       if (zone) {
-        res
-          .status(500)
-          .json({ error: "Zone with this name already exists." });
+        res.status(500).json({ error: "Zone with this name already exists." });
         return;
       }
       const newZone: Kachery2Zone = {
         zoneName,
         userId,
         users: [],
-        publicDownload: true
+        publicDownload: true,
       };
       await insertZone(newZone);
       const resp: AddZoneResponse = {
@@ -101,7 +99,7 @@ export const getZoneHandler = allowCors(
       return;
     }
     try {
-      const zone = await fetchZone(rr.zoneName, {includeCredentials: false});
+      const zone = await fetchZone(rr.zoneName, { includeCredentials: false });
       if (!zone) {
         res.status(404).json({ error: `Zone not found: ${rr.zoneName}` });
         return;
@@ -133,7 +131,7 @@ export const getZonesHandler = allowCors(
       }
       const { userId } = rr;
       const zones = userId
-        ? await fetchZonesForUser(userId, {includeCredentials: false})
+        ? await fetchZonesForUser(userId, { includeCredentials: false })
         : await fetchAllZones();
       const resp: GetZonesResponse = {
         type: "getZonesResponse",
@@ -156,7 +154,7 @@ export const deleteZoneHandler = allowCors(
       return;
     }
     try {
-      const zone = await fetchZone(rr.zoneName, {includeCredentials: false});
+      const zone = await fetchZone(rr.zoneName, { includeCredentials: false });
       if (!zone) {
         res.status(404).json({ error: `Zone not found: ${rr.zoneName}` });
         return;
@@ -192,7 +190,7 @@ export const setZoneInfoHandler = allowCors(
       return;
     }
     try {
-      const zone = await fetchZone(rr.zoneName, {includeCredentials: true});
+      const zone = await fetchZone(rr.zoneName, { includeCredentials: true });
       if (!zone) {
         res.status(404).json({ error: `Zone not found: ${rr.zoneName}` });
         return;
@@ -215,10 +213,11 @@ export const setZoneInfoHandler = allowCors(
       }
       const update: { [key: string]: any } = {};
       if (rr.users !== undefined) update["users"] = rr.users;
-      if (rr.publicDownload !== undefined) update["publicDownload"] = rr.publicDownload;
+      if (rr.publicDownload !== undefined)
+        update["publicDownload"] = rr.publicDownload;
       if (rr.bucketUri !== undefined) update["bucketUri"] = rr.bucketUri;
       if (rr.credentials !== undefined) update["credentials"] = rr.credentials;
-      if (rr.directory !== undefined) update["directory"] = rr.directory
+      if (rr.directory !== undefined) update["directory"] = rr.directory;
       await updateZone(rr.zoneName, update);
       const resp: SetZoneInfoResponse = {
         type: "setZoneInfoResponse",
@@ -373,7 +372,7 @@ export const initiateFileUploadHandler = allowCors(
         res.status(401).json({ error: "Unauthorized - no user for token" });
         return;
       }
-      const zone = await fetchZone(zoneName, { includeCredentials: true});
+      const zone = await fetchZone(zoneName, { includeCredentials: true });
       if (!zone) {
         res.status(400).json({ error: `Zone not found: ${zoneName}` });
         return;
@@ -384,25 +383,21 @@ export const initiateFileUploadHandler = allowCors(
         });
         return;
       }
-      const {
-        alreadyExists,
-        alreadyPending,
-        signedUploadUrl,
-        objectKey
-      } = await initiateUpload({
-        zone,
-        userId,
-        size,
-        hash,
-        hashAlg
-      })
+      const { alreadyExists, alreadyPending, signedUploadUrl, objectKey } =
+        await initiateUpload({
+          zone,
+          userId,
+          size,
+          hash,
+          hashAlg,
+        });
       const resp: InitiateFileUploadResponse = {
         type: "initiateFileUploadResponse",
         alreadyExists,
         alreadyPending,
         signedUploadUrl,
-        objectKey
-      }
+        objectKey,
+      };
       res.status(200).json(resp);
     } catch (e) {
       console.error(e);
@@ -430,7 +425,7 @@ export const finalizeFileUploadHandler = allowCors(
         res.status(401).json({ error: "Unauthorized - no user for token" });
         return;
       }
-      const zone = await fetchZone(zoneName, { includeCredentials: true});
+      const zone = await fetchZone(zoneName, { includeCredentials: true });
       if (!zone) {
         res.status(400).json({ error: `Zone not found: ${zoneName}` });
         return;
@@ -447,12 +442,12 @@ export const finalizeFileUploadHandler = allowCors(
         size,
         hash,
         hashAlg,
-        objectKey
-      })
+        objectKey,
+      });
       const resp: FinalizeFileUploadResponse = {
         type: "finalizeFileUploadResponse",
-        success
-      }
+        success,
+      };
       res.status(200).json(resp);
     } catch (e) {
       console.error(e);
@@ -470,7 +465,7 @@ export const findFileHandler = allowCors(
     }
     try {
       const { hashAlg, hash, zoneName } = rr;
-      const zone = await fetchZone(zoneName, { includeCredentials: true});
+      const zone = await fetchZone(zoneName, { includeCredentials: true });
       if (!zone) {
         res.status(400).json({ error: `Zone not found: ${zoneName}` });
         return;
@@ -486,7 +481,12 @@ export const findFileHandler = allowCors(
       }
       if (!zone.publicDownload) {
         if (!userId) {
-          res.status(401).json({ error: "User API token must be provided when zone does not allow public download" });
+          res
+            .status(401)
+            .json({
+              error:
+                "User API token must be provided when zone does not allow public download",
+            });
           return;
         }
         if (!userIsAllowedToDownloadFilesForZone(zone, userId)) {
@@ -496,19 +496,13 @@ export const findFileHandler = allowCors(
           return;
         }
       }
-      const {
-        found,
-        url,
-        size,
-        bucketUri,
-        objectKey,
-        cacheHit,
-      } = await findFile({
-        zone,
-        userId,
-        hash,
-        hashAlg
-      })
+      const { found, url, size, bucketUri, objectKey, cacheHit } =
+        await findFile({
+          zone,
+          userId,
+          hash,
+          hashAlg,
+        });
       const resp: FindFileResponse = {
         type: "findFileResponse",
         found,
@@ -517,7 +511,7 @@ export const findFileHandler = allowCors(
         bucketUri,
         objectKey,
         cacheHit,
-      }
+      };
       res.status(200).json(resp);
     } catch (e) {
       console.error(e);
@@ -557,7 +551,7 @@ const authenticateUserUsingGitHubToken = async (
 
 const fetchZone = async (
   zoneName: string,
-  o: {includeCredentials: boolean}
+  o: { includeCredentials: boolean },
 ): Promise<Kachery2Zone | null> => {
   const client = await getMongoClient();
   const collection = client.db(dbName).collection(collectionNames.zones);
@@ -575,7 +569,7 @@ const fetchZone = async (
 
 const fetchZonesForUser = async (
   userId: string,
-  o: {includeCredentials: boolean}
+  o: { includeCredentials: boolean },
 ): Promise<Kachery2Zone[]> => {
   const client = await getMongoClient();
   const collection = client.db(dbName).collection(collectionNames.zones);
@@ -776,7 +770,7 @@ export const computeUserStatsHandler = allowCors(
     try {
       const userId = rr.userId;
       const userStats: UserStats = {
-        userId
+        userId,
       };
       const resp: ComputeUserStatsResponse = {
         type: "computeUserStatsResponse",

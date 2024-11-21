@@ -3,6 +3,7 @@ import {
   isArrayOf,
   isBoolean,
   isEqualTo,
+  isNumber,
   isNull,
   isOneOf,
   isString,
@@ -271,9 +272,7 @@ export type SetZoneInfoResponse = {
   type: "setZoneInfoResponse";
 };
 
-export const isSetZoneInfoResponse = (
-  x: any,
-): x is SetZoneInfoResponse => {
+export const isSetZoneInfoResponse = (x: any): x is SetZoneInfoResponse => {
   return validateObject(x, {
     type: isEqualTo("setZoneInfoResponse"),
   });
@@ -301,9 +300,9 @@ export type UserStats = {
 const isUserStats = (x: any): x is UserStats => {
   if (
     !validateObject(x, {
-      userId: isString
-    }
-  ))
+      userId: isString,
+    })
+  )
     return false;
   return true;
 };
@@ -325,82 +324,90 @@ export const isComputeUserStatsResponse = (
 // initiateFileUpload
 
 export type InitiateFileUploadRequest = {
-  type: "initiateFileUploadRequest",
-  size: number,
-  hashAlg: string,
-  hash: string,
-  zoneName: string
+  type: "initiateFileUploadRequest";
+  size: number;
+  hashAlg: string;
+  hash: string;
+  zoneName: string;
 };
 
-export const isInitiateFileUploadRequest = (x: any): x is InitiateFileUploadRequest => {
+export const isInitiateFileUploadRequest = (
+  x: any,
+): x is InitiateFileUploadRequest => {
   return validateObject(x, {
     type: isEqualTo("initiateFileUploadRequest"),
-    size: isOneOf([isString, isNull]),
+    size: isNumber,
     hashAlg: isString,
     hash: isString,
-    zoneName: isString
+    zoneName: isString,
   });
 };
 
 export type InitiateFileUploadResponse = {
-  type: "initiateFileUploadResponse",
-  alreadyExists: boolean,
-  alreadyPending: boolean,
-  signedUploadUrl?: string,
-  objectKey?: string
+  type: "initiateFileUploadResponse";
+  alreadyExists: boolean;
+  alreadyPending: boolean;
+  signedUploadUrl?: string;
+  objectKey?: string;
 };
 
-export const isInitiateFileUploadResponse = (x: any): x is InitiateFileUploadResponse => {
+export const isInitiateFileUploadResponse = (
+  x: any,
+): x is InitiateFileUploadResponse => {
   return validateObject(x, {
     type: isEqualTo("initiateFileUploadResponse"),
     alreadyExists: isBoolean,
     alreadyPending: isBoolean,
     signedUploadUrl: optional(isString),
-    objectKey: optional(isString)
+    objectKey: optional(isString),
   });
 };
 
 // finalizeFileUpload
 
 export type FinalizeFileUploadRequest = {
-  type: "finalizeFileUploadRequest",
-  objectKey: string,
-  hashAlg: string,
-  hash: string,
-  zoneName: string,
-  size: number
+  type: "finalizeFileUploadRequest";
+  objectKey: string;
+  hashAlg: string;
+  hash: string;
+  zoneName: string;
+  size: number;
 };
 
-export const isFinalizeFileUploadRequest = (x: any): x is FinalizeFileUploadRequest => {
+export const isFinalizeFileUploadRequest = (
+  x: any,
+): x is FinalizeFileUploadRequest => {
   return validateObject(x, {
     type: isEqualTo("finalizeFileUploadRequest"),
     objectKey: isString,
     hashAlg: isString,
     hash: isString,
     zoneName: isString,
-    size: isOneOf([isString, isNull])
+    size: isNumber,
   });
 };
 
 export type FinalizeFileUploadResponse = {
-  type: "finalizeFileUploadResponse",
-  success: boolean
+  type: "finalizeFileUploadResponse";
+  success: boolean;
 };
 
-export const isFinalizeFileUploadResponse = (x: any): x is FinalizeFileUploadResponse => {
+export const isFinalizeFileUploadResponse = (
+  x: any,
+): x is FinalizeFileUploadResponse => {
   return validateObject(x, {
     type: isEqualTo("finalizeFileUploadResponse"),
-    success: isBoolean
+    success: isBoolean,
   });
 };
 
 // findFile
 
 export type FindFileRequest = {
-  type: "findFileRequest",
-  hashAlg: string,
-  hash: string,
-  zoneName: string
+  type: "findFileRequest";
+  hashAlg: string;
+  hash: string;
+  zoneName: string;
 };
 
 export const isFindFileRequest = (x: any): x is FindFileRequest => {
@@ -408,18 +415,18 @@ export const isFindFileRequest = (x: any): x is FindFileRequest => {
     type: isEqualTo("findFileRequest"),
     hashAlg: isString,
     hash: isString,
-    zoneName: isString
+    zoneName: isString,
   });
 };
 
 export type FindFileResponse = {
-  type: "findFileResponse",
-  found: boolean,
-  url?: string,
-  size?: number,
-  bucketUri?: string,
-  objectKey?: string,
-  cacheHit?: boolean,
+  type: "findFileResponse";
+  found: boolean;
+  url?: string;
+  size?: number;
+  bucketUri?: string;
+  objectKey?: string;
+  cacheHit?: boolean;
 };
 
 export const isFindFileResponse = (x: any): x is FindFileResponse => {
@@ -427,7 +434,7 @@ export const isFindFileResponse = (x: any): x is FindFileResponse => {
     type: isEqualTo("findFileResponse"),
     found: isBoolean,
     url: optional(isString),
-    size: optional(isOneOf([isString, isNull])),
+    size: optional(isNumber),
     bucketUri: optional(isString),
     objectKey: optional(isString),
     cacheHit: optional(isBoolean),

@@ -25,7 +25,7 @@ export type Route =
   | {
       page: "user";
       userId: string;
-    }
+    };
 
 const useRoute = () => {
   const location = useLocation();

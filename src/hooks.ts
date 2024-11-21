@@ -15,7 +15,7 @@ import {
   isComputeUserStatsResponse,
   isGetZoneResponse,
   isGetZonesResponse,
-  isSetZoneInfoResponse
+  isSetZoneInfoResponse,
 } from "./types";
 
 const isLocalHost = window.location.hostname === "localhost";
@@ -25,9 +25,7 @@ const apiUrl = isLocalHost
 
 export const useZones = () => {
   const { userId, githubAccessToken } = useLogin();
-  const [zones, setZones] = useState<Kachery2Zone[] | undefined>(
-    undefined,
-  );
+  const [zones, setZones] = useState<Kachery2Zone[] | undefined>(undefined);
   const [refreshCode, setRefreshCode] = useState(0);
   const refreshZones = useCallback(() => {
     setRefreshCode((c) => c + 1);
@@ -124,28 +122,34 @@ export const useZone = (zoneName: string) => {
   }, [zoneName, githubAccessToken]);
 
   const setZoneInfo = useMemo(
-    () => async (o: { users?: Kachery2ZoneUser[], bucketUri?: string, directory?: string, credentials?: string }) => {
-      const { users, bucketUri, directory, credentials } = o;
-      if (!githubAccessToken) return;
-      const req: SetZoneInfoRequest = {
-        type: "setZoneInfoRequest",
-        zoneName,
-        users,
-        bucketUri,
-        directory,
-        credentials
-      };
-      const resp = await apiPostRequest(
-        "setZoneInfo",
-        req,
-        githubAccessToken,
-      );
-      if (!isSetZoneInfoResponse(resp)) {
-        console.error("Invalid response", resp);
-        return;
-      }
-      refreshZone();
-    },
+    () =>
+      async (o: {
+        users?: Kachery2ZoneUser[];
+        bucketUri?: string;
+        directory?: string;
+        credentials?: string;
+      }) => {
+        const { users, bucketUri, directory, credentials } = o;
+        if (!githubAccessToken) return;
+        const req: SetZoneInfoRequest = {
+          type: "setZoneInfoRequest",
+          zoneName,
+          users,
+          bucketUri,
+          directory,
+          credentials,
+        };
+        const resp = await apiPostRequest(
+          "setZoneInfo",
+          req,
+          githubAccessToken,
+        );
+        if (!isSetZoneInfoResponse(resp)) {
+          console.error("Invalid response", resp);
+          return;
+        }
+        refreshZone();
+      },
     [zoneName, githubAccessToken, refreshZone],
   );
 
@@ -153,7 +157,7 @@ export const useZone = (zoneName: string) => {
     zone,
     deleteZone,
     setZoneInfo,
-    refreshZone
+    refreshZone,
   };
 };
 

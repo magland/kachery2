@@ -3,7 +3,7 @@ import os
 import shutil
 from ._load_http_file import _load_http_file
 from ._load_github_file import _load_github_file
-from load_file_local import load_file_local
+from .load_file_local import load_file_local
 from ._load_sha1_file_from_cloud import _load_sha1_file_from_cloud
 
 

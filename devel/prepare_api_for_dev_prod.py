@@ -4,9 +4,11 @@ import os
 def prepare_api_for_dev_prod(mode: str):
     if mode == 'dev':
         replace_throughout_all_ts_files('.js"; // remove .js for local dev', '"; // remove .js for local dev')
+        replace_throughout_all_ts_files(".js'; // remove .js for local dev", "'; // remove .js for local dev")
     elif mode == 'prod':
         prepare_api_for_dev_prod('dev')  # first remove any .js so that this is idempotent
         replace_throughout_all_ts_files('"; // remove .js for local dev', '.js"; // remove .js for local dev')
+        replace_throughout_all_ts_files("'; // remove .js for local dev", ".js'; // remove .js for local dev")
     else:
         raise ValueError(f"mode must be 'dev' or 'prod', but was {mode}")
 

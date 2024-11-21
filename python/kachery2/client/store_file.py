@@ -11,7 +11,7 @@ from .store_file_local import _random_string
 from .store_file_local import _compute_file_hash, store_file_local
 from ._custom_storage_backend import get_custom_storage_backend
 
-from _api_requests import _initiate_file_upload_request, _finalize_file_upload_request
+from ._api_requests import _initiate_file_upload_request, _finalize_file_upload_request
 
 
 def store_file(filename: str, *, label: Union[str, None] = None, cache_locally: bool = False, local: bool = False):

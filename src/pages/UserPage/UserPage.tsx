@@ -42,10 +42,7 @@ const UserStatsView: FunctionComponent<UserStatsViewProps> = ({ userId }) => {
   if (!userStats) {
     return <div>Loading...</div>;
   }
-  return (
-    <div>
-    </div>
-  );
+  return <div></div>;
 };
 
 export default UserPage;

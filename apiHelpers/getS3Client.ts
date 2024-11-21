@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AWS from 'aws-sdk';
-import { Bucket, parseBucketUri } from './s3Helpers'; // remove .js for local dev
+import AWS from "aws-sdk";
+import { Bucket, parseBucketUri } from "./s3Helpers"; // remove .js for local dev
 
 // interface PutObjectRequestParamsX {
 //     Bucket: any
@@ -71,82 +71,79 @@ import { Bucket, parseBucketUri } from './s3Helpers'; // remove .js for local de
 // })
 
 class ObjectCache<T> {
-    private cache: {[key: string]: {timestamp: number, value: T}} = {}
-    private expirationMSec: number
-    constructor(expirationMSec: number) {
-        this.expirationMSec = expirationMSec
+  private cache: { [key: string]: { timestamp: number; value: T } } = {};
+  private expirationMSec: number;
+  constructor(expirationMSec: number) {
+    this.expirationMSec = expirationMSec;
+  }
+  get(key: string): T | undefined {
+    const x = this.cache[key];
+    if (!x) return undefined;
+    if (Date.now() - x.timestamp > this.expirationMSec) {
+      delete this.cache[key];
+      return undefined;
     }
-    get(key: string): T | undefined {
-        const x = this.cache[key]
-        if (!x) return undefined
-        if (Date.now() - x.timestamp > this.expirationMSec) {
-            delete this.cache[key]
-            return undefined
-        }
-        return x.value
-    }
-    set(key: string, value: T) {
-        this.cache[key] = {timestamp: Date.now(), value}
-    }
+    return x.value;
+  }
+  set(key: string, value: T) {
+    this.cache[key] = { timestamp: Date.now(), value };
+  }
 }
 
 const hashOfString = (s: string): number => {
-    let hash = 0
-    if (s.length == 0) return hash
-    for (let i = 0; i < s.length; i++) {
-        const char = s.charCodeAt(i)
-        hash = ((hash << 5) - hash) + char
-        hash = hash & hash
-    }
-    return hash
-}
+  let hash = 0;
+  if (s.length == 0) return hash;
+  for (let i = 0; i < s.length; i++) {
+    const char = s.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return hash;
+};
 
-const expirationMSec = 1000 * 60 * 10
-const s3ClientObjectCache = new ObjectCache<AWS.S3>(expirationMSec)
+const expirationMSec = 1000 * 60 * 10;
+const s3ClientObjectCache = new ObjectCache<AWS.S3>(expirationMSec);
 
 const getS3Client = (bucket: Bucket): AWS.S3 => {
-    const k = `${bucket.uri}:${hashOfString(bucket.credentials)}`
-    const x = s3ClientObjectCache.get(k)
-    if (x) return x
-    let ret: AWS.S3
-    const {service, region} = parseBucketUri(bucket.uri)
-    if (['aws', 'wasabi', 'r2', 'google'].includes(service)) {
-        const cred = JSON.parse(bucket.credentials || '{}')
-        for (const k of ['accessKeyId', 'secretAccessKey']) {
-            if (!cred[k]) {
-                throw Error(`Missing in credentals: ${k}`)
-            }
-        }
-        const accessKeyId = cred.accessKeyId
-        const secretAccessKey = cred.secretAccessKey
-        const o: any = {
-            apiVersion: "2006-03-01",
-            accessKeyId,
-            secretAccessKey,
-            region,
-            s3ForcePathStyle: true,
-            signatureVersion: 'v4'
-        }
-        if (service === 'wasabi') {
-            o.endpoint = `https://s3.${region}.wasabisys.com`
-        }
-        else if (service === 'r2') {
-            if (!cred.endpoint) {
-                throw Error('No endpoint in credentials for r2')
-            }
-            o.region = 'auto'
-            o.endpoint = cred.endpoint
-        }
-        else if (service === 'google') {
-            o.endpoint = "https://storage.googleapis.com"
-        }
-        ret = new AWS.S3(o)
+  const k = `${bucket.uri}:${hashOfString(bucket.credentials)}`;
+  const x = s3ClientObjectCache.get(k);
+  if (x) return x;
+  let ret: AWS.S3;
+  const { service, region } = parseBucketUri(bucket.uri);
+  if (["aws", "wasabi", "r2", "google"].includes(service)) {
+    const cred = JSON.parse(bucket.credentials || "{}");
+    for (const k of ["accessKeyId", "secretAccessKey"]) {
+      if (!cred[k]) {
+        throw Error(`Missing in credentals: ${k}`);
+      }
     }
-    else {
-        throw Error(`Unsupported bucket service: ${service} for uri ${bucket.uri}`)
+    const accessKeyId = cred.accessKeyId;
+    const secretAccessKey = cred.secretAccessKey;
+    const o: any = {
+      apiVersion: "2006-03-01",
+      accessKeyId,
+      secretAccessKey,
+      region,
+      s3ForcePathStyle: true,
+      signatureVersion: "v4",
+    };
+    if (service === "wasabi") {
+      o.endpoint = `https://s3.${region}.wasabisys.com`;
+    } else if (service === "r2") {
+      if (!cred.endpoint) {
+        throw Error("No endpoint in credentials for r2");
+      }
+      o.region = "auto";
+      o.endpoint = cred.endpoint;
+    } else if (service === "google") {
+      o.endpoint = "https://storage.googleapis.com";
     }
-    s3ClientObjectCache.set(k, ret)
-    return ret
-}
+    ret = new AWS.S3(o);
+  } else {
+    throw Error(`Unsupported bucket service: ${service} for uri ${bucket.uri}`);
+  }
+  s3ClientObjectCache.set(k, ret);
+  return ret;
+};
 
-export default getS3Client
+export default getS3Client;
