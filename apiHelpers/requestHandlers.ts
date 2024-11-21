@@ -33,6 +33,7 @@ import {
   isFindFileRequest,
   FindFileResponse
 } from "./types"; // remove .js for local dev
+import { initiateUpload, finalizeUpload, findFile } from "./core"; // remove .js for local dev
 
 const dbName = "kachery2";
 
@@ -387,7 +388,7 @@ export const initiateFileUploadHandler = allowCors(
         signedUploadUrl,
         objectKey
       } = await initiateUpload({
-        zoneName,
+        zone,
         userId,
         size,
         hash,
@@ -438,8 +439,8 @@ export const finalizeFileUploadHandler = allowCors(
         });
         return;
       }
-      await finalizeUpload({
-        zoneName,
+      const { success } = await finalizeUpload({
+        zone,
         userId,
         size,
         hash,
@@ -448,7 +449,7 @@ export const finalizeFileUploadHandler = allowCors(
       })
       const resp: FinalizeFileUploadResponse = {
         type: "finalizeFileUploadResponse",
-        success: true
+        success
       }
       res.status(200).json(resp);
     } catch (e) {
@@ -500,9 +501,8 @@ export const findFileHandler = allowCors(
         bucketUri,
         objectKey,
         cacheHit,
-        fallback
       } = await findFile({
-        zoneName,
+        zone,
         userId,
         hash,
         hashAlg
@@ -515,7 +515,6 @@ export const findFileHandler = allowCors(
         bucketUri,
         objectKey,
         cacheHit,
-        fallback
       }
       res.status(200).json(resp);
     } catch (e) {

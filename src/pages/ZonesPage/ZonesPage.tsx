@@ -2,26 +2,26 @@
 import { Hyperlink, SmallIconButton } from "@fi-sci/misc";
 import { Add } from "@mui/icons-material";
 import { FunctionComponent, useCallback } from "react";
-import { useServices } from "../../hooks";
+import { useZones } from "../../hooks";
 import useRoute from "../../useRoute";
-import ServicesTable from "./ServicesTable";
+import ZonesTable from "./ZonesTable";
 import { useLogin } from "../../LoginContext/LoginContext";
 
-type ServicesPageProps = {
+type ZonesPageProps = {
   // none
 };
 
-const ServicesPage: FunctionComponent<ServicesPageProps> = () => {
+const ZonesPage: FunctionComponent<ZonesPageProps> = () => {
   const { userId } = useLogin();
-  const { services, addService } = useServices();
+  const { zones, addZone } = useZones();
   const { setRoute } = useRoute();
 
-  const handleAddService = useCallback(async () => {
+  const handleAddZone = useCallback(async () => {
     if (!userId) return;
-    const serviceName = prompt("Enter service name");
-    if (!serviceName) return;
-    await addService(serviceName);
-  }, [userId, addService]);
+    const zoneName = prompt("Enter zone name");
+    if (!zoneName) return;
+    await addZone(zoneName);
+  }, [userId, addZone]);
 
   if (!userId)
     return (
@@ -29,7 +29,7 @@ const ServicesPage: FunctionComponent<ServicesPageProps> = () => {
         <h3>Not logged in</h3>
       </div>
     );
-  if (!services)
+  if (!zones)
     return (
       <div style={{ padding: 20 }}>
         <h3>Loading...</h3>
@@ -49,14 +49,14 @@ const ServicesPage: FunctionComponent<ServicesPageProps> = () => {
       <hr />
       <div>
         <SmallIconButton
-          onClick={handleAddService}
+          onClick={handleAddZone}
           icon={<Add />}
-          label="Add service"
+          label="Add zone"
         />
       </div>
-      <ServicesTable services={services} />
+      <ZonesTable zones={zones} />
     </div>
   );
 };
 
-export default ServicesPage;
+export default ZonesPage;

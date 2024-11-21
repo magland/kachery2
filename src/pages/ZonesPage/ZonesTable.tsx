@@ -1,36 +1,36 @@
 import { FunctionComponent } from "react";
-import ServiceNameComponent from "../../components/ServiceNameComponent";
+import ZoneNameComponent from "../../components/ZoneNameComponent";
 import UserIdComponent from "../../components/UserIdComponent";
-import { Kachery2Service } from "../../types";
+import { Kachery2Zone } from "../../types";
 
-type ServicesTableProps = {
-  services: Kachery2Service[];
+type ZonesTableProps = {
+  zones: Kachery2Zone[];
 };
 
-const ServicesTable: FunctionComponent<ServicesTableProps> = ({ services }) => {
+const ZonesTable: FunctionComponent<ZonesTableProps> = ({ zones }) => {
   return (
     <table className="table">
       <thead>
         <tr>
-          <th>Service</th>
+          <th>Zone</th>
           <th>Owner</th>
           <th>Users</th>
         </tr>
       </thead>
       <tbody>
-        {services.map((service) => (
-          <tr key={service.serviceName}>
+        {zones.map((zone) => (
+          <tr key={zone.zoneName}>
             <td>
-              <ServiceNameComponent serviceName={service.serviceName} />
+              <ZoneNameComponent zoneName={zone.zoneName} />
             </td>
             <td>
-              <UserIdComponent userId={service.userId} />
+              <UserIdComponent userId={zone.userId} />
             </td>
             <td>
-              {service.users.length === 0 ? (
+              {zone.users.length === 0 ? (
                 <span>none</span>
               ) : (
-                service.users.map((u) => (
+                zone.users.map((u) => (
                   <span>
                     <UserIdComponent userId={u.userId} />
                     &nbsp;
@@ -45,4 +45,4 @@ const ServicesTable: FunctionComponent<ServicesTableProps> = ({ services }) => {
   );
 };
 
-export default ServicesTable;
+export default ZonesTable;

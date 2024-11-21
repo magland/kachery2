@@ -16,6 +16,8 @@ export type Kachery2Zone = {
   userId: string;
   users: Kachery2ZoneUser[];
   publicDownload: boolean;
+  bucketUri?: string;
+  directory?: string;
   credentials?: string;
 };
 
@@ -25,6 +27,8 @@ export const isKachery2Zone = (x: any): x is Kachery2Zone => {
     userId: isString,
     users: isArrayOf(isKachery2ZoneUser),
     publicDownload: isBoolean,
+    bucketUri: optional(isString),
+    directory: optional(isString),
     credentials: optional(isString),
   });
 };
@@ -410,7 +414,6 @@ export type FindFileResponse = {
   bucketUri?: string,
   objectKey?: string,
   cacheHit?: boolean,
-  fallback?: boolean
 };
 
 export const isFindFileResponse = (x: any): x is FindFileResponse => {
@@ -422,6 +425,5 @@ export const isFindFileResponse = (x: any): x is FindFileResponse => {
     bucketUri: optional(isString),
     objectKey: optional(isString),
     cacheHit: optional(isBoolean),
-    fallback: optional(isBoolean)
   });
 };

@@ -12,19 +12,9 @@ type Props = {
 const HomePage: FunctionComponent<Props> = () => {
   const { setRoute } = useRoute();
   const { recentZones } = useRecentZones();
-  const a = localStorage.getItem("in-process-of-registering-compute-client");
   return (
     <div style={{ padding: 30 }}>
       <h3>Kachery2: Kachery2 Prototype 3</h3>
-      {a && (
-        <Hyperlink
-          onClick={() => {
-            setRoute(JSON.parse(a));
-          }}
-        >
-          CONTINUE REGISTERING COMPUTE CLIENT
-        </Hyperlink>
-      )}
       <p>
         <a
           href="https://github.com/magland/kachery2"

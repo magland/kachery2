@@ -7,48 +7,45 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useService } from "../../hooks";
+import { useZone } from "../../hooks";
 import useRoute from "../../useRoute";
-import ComputeClientsView from "./ComputeClientsView";
-import ServiceAppsView from "./ServiceAppsView";
-import JobsView from "../ComputeClientPage/JobsView";
-import { Kachery2Service, Kachery2ServiceUser } from "../../types";
+import { Kachery2Zone, Kachery2ZoneUser } from "../../types";
 import { Add, Delete } from "@mui/icons-material";
-import { reportRecentService } from "../HomePage/HomePage";
+import { reportRecentZone } from "../HomePage/HomePage";
 import UserIdComponent from "../../components/UserIdComponent";
-import ServiceNameComponent from "../../components/ServiceNameComponent";
+import ZoneNameComponent from "../../components/ZoneNameComponent";
 
-type ServicePageProps = {
+type ZonePageProps = {
   width: number;
   height: number;
 };
 
-const ServicePage: FunctionComponent<ServicePageProps> = ({
+const ZonePage: FunctionComponent<ZonePageProps> = ({
   width,
   height,
 }) => {
   const { route, setRoute } = useRoute();
   const [errorMessage] = useState<string | null>(null);
-  if (route.page !== "service") {
+  if (route.page !== "zone") {
     throw new Error("Invalid route");
   }
-  const serviceName = route.serviceName;
-  const { service, deleteService, setServiceInfo } = useService(serviceName);
+  const zoneName = route.zoneName;
+  const { zone, deleteZone, setZoneInfo } = useZone(zoneName);
   const [editingUsers, setEditingUsers] = useState(false);
 
   const setUsers = useCallback(
-    async (users: Kachery2ServiceUser[]) => {
-      await setServiceInfo({ users });
+    async (users: Kachery2ZoneUser[]) => {
+      await setZoneInfo({ users });
     },
-    [setServiceInfo],
+    [setZoneInfo],
   );
 
   useEffect(() => {
-    reportRecentService(serviceName);
-  }, [serviceName]);
+    reportRecentZone(zoneName);
+  }, [zoneName]);
 
   // const handleLoadFromSource = useCallback(async () => {
-  //     if (!service) return
+  //     if (!zone) return
   //     if (!app.sourceUri) return
   //     setErrorMessage(null)
   //     try {
@@ -74,7 +71,7 @@ const ServicePage: FunctionComponent<ServicePageProps> = ({
   //         setErrorMessage('Error loading from source: ' + err.message)
   //     }
   // }, [app, setAppInfo])
-  if (!service) {
+  if (!zone) {
     return (
       <div style={{ padding: 20 }}>
         <h3>Loading...</h3>
@@ -87,38 +84,38 @@ const ServicePage: FunctionComponent<ServicePageProps> = ({
         <div>
           <Hyperlink
             onClick={() => {
-              setRoute({ page: "services" });
+              setRoute({ page: "zones" });
             }}
           >
-            Back to services
+            Back to zones
           </Hyperlink>
         </div>
         <hr />
         <table className="table" style={{ maxWidth: 500 }}>
           <tbody>
             <tr>
-              <td>Service</td>
+              <td>Zone</td>
               <td>
-                <ServiceNameComponent serviceName={serviceName} />
+                <ZoneNameComponent zoneName={zoneName} />
               </td>
               <td />
             </tr>
             <tr>
               <td>Owner</td>
               <td>
-                <UserIdComponent userId={service.userId} />
+                <UserIdComponent userId={zone.userId} />
               </td>
               <td />
             </tr>
             <tr>
               <td>Users</td>
               <td>
-                {service.users.map((user, index) => (
+                {zone.users.map((user, index) => (
                   <div key={index}>
                     <UserIdComponent userId={user.userId} />
                     {user.admin && " (admin)"}
-                    {user.createJobs && " (create jobs)"}
-                    {user.processJobs && " (process jobs)"}
+                    {user.uploadFiles && " (upload files)"}
+                    {user.downloadFiles && " (download files)"}
                   </div>
                 ))}
               </td>
@@ -136,30 +133,21 @@ const ServicePage: FunctionComponent<ServicePageProps> = ({
         </div>
         {editingUsers && (
           <EditUsersControl
-            service={service}
+            zone={zone}
             onSetUsers={(users) => setUsers(users)}
           />
         )}
         <hr />
-        <h3>Apps</h3>
-        <ServiceAppsView serviceName={serviceName} />
-        <hr />
-        <h3>Compute clients</h3>
-        <ComputeClientsView serviceName={serviceName} />
-        <hr />
-        <h3>Jobs</h3>
-        <JobsView serviceName={serviceName} />
-        <hr />
         <div>
-          {/* Delete service */}
+          {/* Delete zone */}
           <button
             onClick={async () => {
-              if (!window.confirm(`Delete service ${serviceName}?`)) return;
-              await deleteService();
-              setRoute({ page: "services" });
+              if (!window.confirm(`Delete zone ${zoneName}?`)) return;
+              await deleteZone();
+              setRoute({ page: "zones" });
             }}
           >
-            Delete service
+            Delete zone
           </button>
         </div>
       </div>
@@ -188,25 +176,25 @@ const ServicePage: FunctionComponent<ServicePageProps> = ({
 // }
 
 type EditUsersControlProps = {
-  service: Kachery2Service;
-  onSetUsers: (users: Kachery2ServiceUser[]) => Promise<void>;
+  zone: Kachery2Zone;
+  onSetUsers: (users: Kachery2ZoneUser[]) => Promise<void>;
 };
 
 const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
-  service,
+  zone,
   onSetUsers,
 }) => {
-  const [localEditUsers, setLocalEditUsers] = useState<Kachery2ServiceUser[]>(
-    service.users,
+  const [localEditUsers, setLocalEditUsers] = useState<Kachery2ZoneUser[]>(
+    zone.users,
   );
   useEffect(() => {
-    setLocalEditUsers(service.users);
-  }, [service]);
+    setLocalEditUsers(zone.users);
+  }, [zone]);
   const somethingChanged = useMemo(() => {
     return (
-      deterministicHash(localEditUsers) !== deterministicHash(service.users)
+      deterministicHash(localEditUsers) !== deterministicHash(zone.users)
     );
-  }, [localEditUsers, service]);
+  }, [localEditUsers, zone]);
   return (
     <div>
       <div>
@@ -222,7 +210,7 @@ const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
             const userId = "github|" + ghUserName;
             const newUsers = [
               ...localEditUsers,
-              { userId, admin: false, createJobs: true, processJobs: false },
+              { userId, admin: false, downloadFiles: true, uploadFiles: true },
             ];
             setLocalEditUsers(newUsers);
           }}
@@ -244,8 +232,8 @@ const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
             <th></th>
             <th>User</th>
             <th>Admin</th>
-            <th>Create jobs</th>
-            <th>Process jobs</th>
+            <th>Download files</th>
+            <th>Upload files</th>
           </tr>
         </thead>
         {localEditUsers.map((user, index) => (
@@ -277,10 +265,10 @@ const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
             <td>
               <input
                 type="checkbox"
-                checked={user.createJobs}
+                checked={user.downloadFiles}
                 onChange={(e) => {
                   const newUsers = [...localEditUsers];
-                  newUsers[index] = { ...user, createJobs: e.target.checked };
+                  newUsers[index] = { ...user, downloadFiles: e.target.checked };
                   setLocalEditUsers(newUsers);
                 }}
               />
@@ -288,10 +276,10 @@ const EditUsersControl: FunctionComponent<EditUsersControlProps> = ({
             <td>
               <input
                 type="checkbox"
-                checked={user.processJobs}
+                checked={user.uploadFiles}
                 onChange={(e) => {
                   const newUsers = [...localEditUsers];
-                  newUsers[index] = { ...user, processJobs: e.target.checked };
+                  newUsers[index] = { ...user, uploadFiles: e.target.checked };
                   setLocalEditUsers(newUsers);
                 }}
               />
@@ -307,4 +295,4 @@ const deterministicHash = (x: any) => {
   return JSON.stringify(x);
 };
 
-export default ServicePage;
+export default ZonePage;
